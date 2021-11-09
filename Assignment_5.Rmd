@@ -134,14 +134,14 @@ rf_mod_perform <- model_performance(rf_explain)
 2. Use `DALEX` functions to create a variable importance plot from this model. What are the most important variables? 
 
 ```{r}
-hist_plot <- 
-  plot(rf_mod_perform, 
-       geom = "histogram")
 box_plot <-
   plot(rf_mod_perform, 
        geom = "boxplot")
-hist_plot
+hist_plot <- 
+  plot(rf_mod_perform, 
+       geom = "histogram")
 box_plot
+hist_plot
 ```
 
 
@@ -220,12 +220,13 @@ rf_explain <-
   
 6. Describe how you would use the interpretable machine learning tools we've learned (both local and global) in future machine learning projects? How does each of them help you?
 
-```{r}
-
-```
 
 
 7. Save this final model using the `write_rds()` function - see the [Use the model](https://advanced-ds-in-r.netlify.app/posts/2021-03-16-ml-review/#use-the-model) section of the `tidymodels` intro for a similar example, but we're using `write_rds()` instead of `saveRDS()`. We are going to use the model in the next part. You'll want to save it in the folder where you create your shiny app. Run the code, and then add `eval=FALSE` to the code chunk options (next to the r inside the curly brackets) so it doesn't rerun this each time you knit. 
+
+```{r, eval=FALSE}
+write_rds(rf_final, "Final Model")
+```
 
 ## Shiny app
 
@@ -252,6 +253,11 @@ I'm hoping that the topic for this week is a review for all of you, but it's goo
 **Task:**
 
 Read both short articles in Week6. Data visualization section of [Calling Bulllshit](https://www.callingbullshit.org/syllabus.html#Visual). Were there any principles mentioned that you hadn't heard of before? What graph stood out for you as "the worst"? Did any of the graphs fool you? Or were able to overcome the bad practices (don't worry if they fool you - plently of them have fooled me, too.)? How does practicing good data visualization principles fit in with data ethics?
+
+*Article Review*
+
+The first thought that came to mind reading the article was how even professional bodies with seemingly reputable stature such as the German Economic Development Agency produced visualizations that are substandard, contributing to misleading conclusions. Although we get carried away with wanting to convey our interpretations, it is essential to always be aware of how even specific aspects that are usually overlooked, such as the ranges on the axis of graphs, can have large impacts on how the audience perceives them (for example - the difference between a line and bar graph). The worst graph in my opinion is the one produced in the World Inequality Report where the authors change the scale of the axis towards the end of the time period. The way I interpreted this was how they intended to mislead the audience, and although a more educated one would notice the subtle difference, there may be other audiences who would not capture this. In general, all of these graphs did not deceive me upon closer inspection but I can see how I would easily arrive to incorrect conclusions if I were following these in timed situations such as a presentation. I was interested to become aware of the Principle of Proportional Ink and although the fundamental ideas come naturally when ensuring that our visualizations do not led to misleading conclusions, I realized that I was not always aware of it completely. 
+
 
 
 ## Make this document look nicer!
