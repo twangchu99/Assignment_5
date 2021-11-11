@@ -1,5 +1,7 @@
 ---
 title: 'Assignment #5'
+author: "Tshering Wangchuk"
+date: "11/8/2021"
 output: 
   html_document:
     toc: true
@@ -7,6 +9,7 @@ output:
     df_print: paged
     code_download: true
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
@@ -118,7 +121,7 @@ rf_final <- rf_workflow %>%
 1. Use functions from the `DALEX` and `DALEXtra` libraries to create a histogram and boxplot of the residuals from the training data. How do they look? Any interesting behavior?
 
 ```{r}
-rf_explain <- 
+rf_dalex <- 
   explain_tidymodels(
     model = rf_final,
     data = lending_training %>% select(-Class),
@@ -128,7 +131,7 @@ rf_explain <-
     label = "rf"
   )
 
-rf_mod_perform <- model_performance(rf_explain)
+rf_mod_perform <- model_performance(rf_dalex)
 ```
 
 2. Use `DALEX` functions to create a variable importance plot from this model. What are the most important variables? 
@@ -162,7 +165,7 @@ cp_profile <- function(explainer, new_observation, variable){
 }
 
 cp_profile(
-  explainer = rf_explain,
+  explainer = rf_dalex,
   new_observation = lending_test %>% slice(5),
   variable = "int_rate"
   )
@@ -176,7 +179,7 @@ If you need help with function writing check out the [Functions](https://r4ds.ha
 4. Use `DALEX` functions to create partial dependence plots (with the CP profiles in gray) for the 3-4 most important variables. If the important variables are categorical, you can instead make a CP profile for 3 observations in the dataset and discuss how you could go about constructing a partial dependence plot for a categorical variable (you don't have to code it, but you can if you want an extra challenge). If it ever gives you an error that says, "Error: Can't convert from `VARIABLE` <double> to `VARIABLE` <integer> due to loss of precision", then remove that variable from the list. I seem to have figured out why it's doing that, but I don't know how to fix it yet.
 
 ```{r}
-rf_pdp <- model_profile(explainer = rf_explain,
+rf_pdp <- model_profile(explainer = rf_dalex,
                         variables = c("int_rate",
                                       "annual_inc",
                                       "revol_util"))
@@ -208,19 +211,53 @@ revol_util
   - Construct a LIME graph (follow my code carefully). How close is each original prediction to the prediction from the local model? Interpret the result. You can also try using fewer or more variables in the local model than I used in the example.  
   
 ```{r}
-rf_explain <- 
-  explain_tidymodels(
-    model = rf_final,
-    data = lending_training, 
-    y = lending_training,
-    label = "rf"
-  )
+lending_test
+obs1 <- lending_test %>% slice(500)
+obs2 <- lending_test %>% slice(1000)
+obs3 <- lending_test %>% slice(1500)
+```
+
+```{r}
+pp_rf1 <- predict_parts(explainer = rf_dalex,
+                       new_observation = obs1,
+                       type = "break_down")
+pp_rf2 <- predict_parts(explainer = rf_dalex,
+                       new_observation = obs2,
+                       type = "break_down")
+pp_rf3 <- predict_parts(explainer = rf_dalex,
+                       new_observation = obs3,
+                       type = "break_down")                       
+plot(pp_rf1)
+plot(pp_rf2)
+plot(pp_rf3)
+```
+For the first graph, 'revol_util' appears to be the strongest predictor, followed by 'verification_status' for the second graph and 'total_il_high_credit_limit' for the third graph.  
+
+```{r}
+rf_shap1 <-predict_parts(explainer = rf_dalex,
+                        new_observation = obs1,
+                        type = "shap",
+                        B = 10
+)
+rf_shap2 <-predict_parts(explainer = rf_dalex,
+                        new_observation = obs2,
+                        type = "shap",
+                        B = 10 
+)
+rf_shap3 <-predict_parts(explainer = rf_dalex,
+                        new_observation = obs3,
+                        type = "shap",
+                        B = 10 
+)
+plot(rf_shap1)
+plot(rf_shap2)
+plot(rf_shap3)
 ```
 
   
 6. Describe how you would use the interpretable machine learning tools we've learned (both local and global) in future machine learning projects? How does each of them help you?
 
-
+I would use the interpretable ML techniques to improve my understanding of what the models are communicating by becoming aware of the different interactions and impacts, especially when working with larger data sets. Taking what we worked on in the previous questions, these plots really provide insightful information regarding the models and different variables. 
 
 7. Save this final model using the `write_rds()` function - see the [Use the model](https://advanced-ds-in-r.netlify.app/posts/2021-03-16-ml-review/#use-the-model) section of the `tidymodels` intro for a similar example, but we're using `write_rds()` instead of `saveRDS()`. We are going to use the model in the next part. You'll want to save it in the folder where you create your shiny app. Run the code, and then add `eval=FALSE` to the code chunk options (next to the r inside the curly brackets) so it doesn't rerun this each time you knit. 
 
